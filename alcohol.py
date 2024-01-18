@@ -27,18 +27,15 @@ def get_alcohol(file_path):
     return establecimientos_alcohol
 
 
-def main():
-    # Lista de rutas de archivos
-    paths = [
+def main(paths = [
         '/home/jay/repos/AI/feminicidios/denue_00_46111_csv/conjunto_de_datos/denue_inegi_46111_.csv',
         '/home/jay/repos/AI/feminicidios/denue_00_46112-46311_csv/conjunto_de_datos/denue_inegi_46112-46311_.csv',
         '/home/jay/repos/AI/feminicidios/denue_00_46321-46531_csv/conjunto_de_datos/denue_inegi_46321-46531_.csv',
         '/home/jay/repos/AI/feminicidios/denue_00_46591-46911_csv/conjunto_de_datos/denue_inegi_46591-46911_.csv',
         
         # Sin querer puse el de las escuelas, xd que bueno que despues de get_alcohol() el DF estaba vacio
-        '/home/jay/repos/AI/feminicidios/denue_00_61_csv/conjunto_de_datos/denue_inegi_61_.csv'
-    ]
-
+        #'/home/jay/repos/AI/feminicidios/denue_00_61_csv/conjunto_de_datos/denue_inegi_61_.csv'
+        ]):
     # Iniciar un dataframe vacío
     combined_df = pd.DataFrame()
 
@@ -47,8 +44,6 @@ def main():
         df = get_alcohol(path)
         # Concatenar el dataframe actual al dataframe combinado
         combined_df = pd.concat([combined_df, df], ignore_index=True)
-
-    print(combined_df)
 
     # Filters
     filtered_df = combined_df.dropna(subset=['latitud', 'longitud'])
@@ -63,7 +58,9 @@ def main():
     
 
 if __name__ == "__main__":
+    # Lista de rutas de archivos
     filtered_df = main()
+    print("lo estas haciendo mal")
     # Creating the scatter plot
     plt.figure(figsize=(10, 6))
     plt.scatter(filtered_df['longitud'], filtered_df['latitud'], alpha=0.5)
