@@ -1,13 +1,11 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from scripts.alcohol import main as compute_alcohol
-from scripts.alcohol import normalize_text
 import unicodedata
 
 def normalize_text(text):
     return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
 
-def get_health(file_path):
+def main(file_path):
     try:
         data = pd.read_csv(file_path, encoding='latin1', low_memory=False)
     except Exception as e:
@@ -51,7 +49,15 @@ def get_health(file_path):
     data.loc[data['nombre_act'].str.contains('|'.join(terminos_publicos), case=False, na=False), 'sector'] = 'publico'
     data.loc[data['nombre_act'].str.contains('|'.join(terminos_hospitales), case=False, na=False), 'sector'] = 'hospital'
 
-    return data
+
+    filtered_df = data.dropna(subset=['latitud', 'longitud'])
+
+    filtered_df['latitud'] = pd.to_numeric(filtered_df['latitud'], errors='coerce')
+    filtered_df['longitud'] = pd.to_numeric(filtered_df['longitud'], errors='coerce')
+    final_data = filtered_df.dropna(subset=['latitud', 'longitud'])
+
+
+    return final_data
 
 # Variables que codifican informacion 
 """ Sector privado, 
@@ -84,13 +90,14 @@ NO
 
 if __name__ == "__main__":
     # alcohol_establishments = compute_alcohol()
-    file_path = '/home/jay/repos/AI/feminicidios/denue_00_62111_csv/conjunto_de_datos/denue_inegi_62111_.csv'
-    schools = get_health()
+    file_path = '/home/jay/repos/GeoStats/denue/denue_00_62_csv/conjunto_de_datos/denue_inegi_62_.csv'
     # Creating the scatter plot
     plt.figure(figsize=(10, 6))
-    plt.scatter(schools['longitud'], schools['latitud'], alpha=0.5)
+    salud = main(file_path)
+    plt.scatter(salud['longitud'], salud['latitud'], alpha=0.5)
     plt.title('Scatter Plot of Alcohol Selling Establishments')
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
-    print(schools)
     plt.show()
+
+    
