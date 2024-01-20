@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from alcohol import main as compute_alcohol
-from alcohol import normalize_text
+from scripts.alcohol import main as compute_alcohol
+from scripts.alcohol import normalize_text
 
 def main(file_path='/home/jay/repos/AI/feminicidios/denue_00_61_csv/conjunto_de_datos/denue_inegi_61_.csv'):
     try:

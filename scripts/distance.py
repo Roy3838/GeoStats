@@ -1,5 +1,5 @@
-from schools import main as compute_schools
-from alcohol import main as compute_alcohol
+from scripts.schools import main as compute_schools
+from scripts.alcohol import main as compute_alcohol
 from scipy.spatial import KDTree
 
 
