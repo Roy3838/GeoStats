@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import unittest
 from scripts.distance import find_nearest 
-from scripts.schools import main as compute_schools
-from scripts.alcohol import main as compute_alcohol
+from scripts.deprecated.schools import main as compute_schools
+from scripts.deprecated.alcohol import main as compute_alcohol
 from scipy.spatial import KDTree
 
 
