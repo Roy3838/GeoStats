@@ -1,30 +1,45 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-import unicodedata
 
-def normalize_text(text):
-    return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
 
 def get_alcohol(file_path):
     try:
-        data = pd.read_csv(file_path, encoding='latin1', low_memory=False)
+        loaded_data = pd.read_csv(file_path, encoding='latin1', low_memory=False)
     except Exception as e:
         print(f"Error reading the file: {e}")
         return pd.DataFrame()  # Return an empty dataframe in case of an error
 
-    # Como Nuevo Leon tiene acento, se normaliza el texto para que no haya problemas
-    data['entidad'] = data['entidad'].apply(lambda x: normalize_text(x) if isinstance(x, str) else x)
+    filtered_NL_data = DF_only_NL(loaded_data)
+    data = filtered_NL_data.copy()
+
+    # Normalizar
+    data['nom_estab'] = data['nom_estab'].apply(lambda x: normalize_text(x) if isinstance(x, str) else x)
+    data['raz_social'] = data['raz_social'].apply(lambda x: normalize_text(x) if isinstance(x, str) else x)
+    data['nombre_act'] = data['nombre_act'].apply(lambda x: normalize_text(x) if isinstance(x, str) else x)
+
+    # Todo a minusculas
+    data['nom_estab'] = data['nom_estab'].str.lower()
+    data['raz_social'] = data['raz_social'].str.lower()
+    data['nombre_act'] = data['nombre_act'].str.lower()
 
     # Lista de términos relacionados con la venta de alcohol
     terminos_alcohol = ['alcohol', 'licor', 'cerveza', 'bar', 'cantina', 'vinos', 'bebidas alcohólicas']
 
-    # Este es el filtro
-    establecimientos_alcohol = data[data['nombre_act'].str.contains('|'.join(terminos_alcohol), case=False, na=False) & 
-                                    (data['entidad'] == 'Nuevo Leon')]
+    # Existen estas columnas que clasificaremos
+    columnas_a_clasificar = ['nombre_act', 'raz_social', 'nom_estab']
 
-    # regresa las cosas importantes y id para debuggear
-    establecimientos_alcohol = establecimientos_alcohol[['id', 'nom_estab', 'nombre_act', 'latitud', 'longitud']]
-    return establecimientos_alcohol
+    # Lista para almacenar DataFrames filtrados
+    filtered_dfs = []
+
+    # Clasificamos los establecimientos por cada columna
+    for columna in columnas_a_clasificar:
+        # Filtramos y añadimos a la lista
+        filtered_df = data[data[columna].str.contains('|'.join(terminos_alcohol), case=False, na=False)]
+        filtered_dfs.append(filtered_df)
+
+    # Combinamos todos los DataFrames filtrados
+    combined_df = pd.concat(filtered_dfs).drop_duplicates()
+
+    return combined_df
 
 
 def main(paths = [
@@ -45,22 +60,18 @@ def main(paths = [
         # Concatenar el dataframe actual al dataframe combinado
         combined_df = pd.concat([combined_df, df], ignore_index=True)
 
-    # Filters
-    filtered_df = combined_df.dropna(subset=['latitud', 'longitud'])
-
-    filtered_df['latitud'] = pd.to_numeric(filtered_df['latitud'], errors='coerce')
-    filtered_df['longitud'] = pd.to_numeric(filtered_df['longitud'], errors='coerce')
-    filtered_df = filtered_df.dropna(subset=['latitud', 'longitud'])
+    final_data = DF_to_float(combined_df)
     
     
-    return filtered_df
+    return final_data
 
     
 
 if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+    from utilities import *
     # Lista de rutas de archivos
     filtered_df = main()
-    print("lo estas haciendo mal")
     # Creating the scatter plot
     plt.figure(figsize=(10, 6))
     plt.scatter(filtered_df['longitud'], filtered_df['latitud'], alpha=0.5)
@@ -68,3 +79,7 @@ if __name__ == "__main__":
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
     plt.show()
+
+
+else:
+    from scripts.utilities import *

@@ -1,7 +1,4 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-from scripts.alcohol import main as compute_alcohol
-from scripts.alcohol import normalize_text
 
 def main(file_path='/home/jay/repos/AI/feminicidios/denue_00_61_csv/conjunto_de_datos/denue_inegi_61_.csv'):
     try:
@@ -9,15 +6,20 @@ def main(file_path='/home/jay/repos/AI/feminicidios/denue_00_61_csv/conjunto_de_
     except Exception as e:
         print(f"Error reading the file: {e}")
 
+    data = DF_only_NL(data)
 
-    filtered_df = data.dropna(subset=['latitud', 'longitud'])
+    schools = DF_to_float(data)
 
-    filtered_df['latitud'] = pd.to_numeric(filtered_df['latitud'], errors='coerce')
-    filtered_df['longitud'] = pd.to_numeric(filtered_df['longitud'], errors='coerce')
-    schools = filtered_df.dropna(subset=['latitud', 'longitud'])
     return schools
 
+
+# los imports son malisimos lo siento si estas aqui por favor no me mates
+
 if __name__ == "__main__":
+
+    import matplotlib.pyplot as plt
+    from utilities import *
+
     # alcohol_establishments = compute_alcohol()
     schools = main()
     # Creating the scatter plot
@@ -27,6 +29,11 @@ if __name__ == "__main__":
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
     plt.show()
+
+else: 
+    from scripts.utilities import *
+
+
 
 
 

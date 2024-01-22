@@ -9,15 +9,7 @@ Los principales identificadores de los establecimientos son:
 
         
 Si alguno de estos identificadores contienen los terminos:
-['consultorio','privado', ''] -> Sector privado
-
-['publico', 'imss', 'isste'] -> Sector Publico
-
-['Hospital', 'Cirugia'] -> Hospital
-
-
-Rechazamos los terminos:
-['Comedor', 'Laboratorio', 'Estancias', 'Dentista', ''] -> No son establecimientos de salud
+['parques', 'jardin', 'plaza', 'bosque', ''] -> Parques
 """
 
 
@@ -43,32 +35,30 @@ def main(file_path):
     data['raz_social'] = data['raz_social'].str.lower()
     data['nombre_act'] = data['nombre_act'].str.lower()
 
-    # Lista de términos que vamos a filtrar que no son de salud
-    terminos_no = ['comedor', 'laboratorio', 'estancias', 'dentista']
-    # Quitar los términos que no son de salud
-    data = data[~data['nombre_act'].str.contains('|'.join(terminos_no), case=False, na=False)]
-
     # Vamos a clasificar los establecimientos en sector privado, sector público y hospitales
-    terminos_privados = ['consultorio', 'privado']
-    terminos_publicos = ['público', 'imss', 'isste']
-    terminos_hospitales = ['hospital', 'cirugía']
+    terminos_parques = ['parques', 'jardin', 'plaza', 'bosque']
 
     # Existen estas columnas que clasificaremos
     columnas_a_clasificar = ['nombre_act', 'raz_social', 'nom_estab']
 
-    # Creamos una columna que clasifique los establecimientos 
-    data['sector'] = 'otro'
+    # Lista para almacenar DataFrames filtrados
+    filtered_dfs = []
 
-    # Clasificamos los establecimientos
+    # Clasificamos los establecimientos por cada columna
     for columna in columnas_a_clasificar:
-        data.loc[data[columna].str.contains('|'.join(terminos_privados), case=False, na=False), 'sector'] = 'privado'
-        data.loc[data[columna].str.contains('|'.join(terminos_publicos), case=False, na=False), 'sector'] = 'público'
-        data.loc[data[columna].str.contains('|'.join(terminos_hospitales), case=False, na=False), 'sector'] = 'hospital'
+        # Filtramos y añadimos a la lista
+        filtered_df = data[data[columna].str.contains('|'.join(terminos_parques), case=False, na=False)]
+        filtered_dfs.append(filtered_df)
 
-    # Cambiar coordenadas a float
-    final_data = DF_to_float(data)
-    
-    return final_data
+    # Combinamos todos los DataFrames filtrados
+    combined_df = pd.concat(filtered_dfs).drop_duplicates()
+
+    # Cambianos coordenadas a float
+    combined_df = DF_to_float(combined_df)
+
+    return combined_df
+        
+
 
 
 
@@ -79,12 +69,12 @@ if __name__ == "__main__":
     from utilities import *
 
     # alcohol_establishments = compute_alcohol()
-    file_path = '/home/jay/repos/GeoStats/denue/denue_00_62_csv/conjunto_de_datos/denue_inegi_62_.csv'
+    file_path = '/home/jay/repos/GeoStats/denue/denue_00_71_csv/conjunto_de_datos/denue_inegi_71_.csv'
     # Creating the scatter plot
     plt.figure(figsize=(10, 6))
     salud = main(file_path)
     plt.scatter(salud['longitud'], salud['latitud'], alpha=0.5)
-    plt.title('Scatter Plot of Alcohol Selling Establishments')
+    plt.title('Parques')
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
     plt.show()
