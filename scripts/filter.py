@@ -1,6 +1,21 @@
 import pandas as pd
 from scripts.utilities import *
 
+"""
+Libreria que reemplaza alcohol.py, parques.py, salud.py y schools.py
+
+Se abstrae para filtrar dado columnas y terminos de filtro
+
+Ejemplo de uso:
+    columnas_para_filtrar = ['nombre_act', 'raz_social', 'nom_estab']
+    terminos_parques = ['parques', 'jardin', 'plaza', 'bosque']
+    filtrar_dataframe(ruta_archivo, columnas_para_filtrar, terminos_parques)
+
+regresa todos los establecimientos que tengan los terminos en las columnas
+
+"""
+
+
 def filtrar_dataframe(ruta_archivo, columnas_para_filtrar, terminos_filtro):
     try:
         datos_cargados = pd.read_csv(ruta_archivo, encoding='latin1', low_memory=False)

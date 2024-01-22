@@ -22,7 +22,7 @@ def DF_to_float(data):
 
     return final_data
 
-
+# Regresa solo datos de Nuevo Leon
 def DF_only_NL(data):
 
     # Como Nuevo Leon tiene acento, se normaliza el texto para que no haya problemas
