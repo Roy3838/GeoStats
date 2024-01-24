@@ -33,17 +33,31 @@ def semiverseno(arr1, arr2):
 
     return R * c
 
-def find_nearest(df_escuelas, df_alcohol):
+def find_nearest_n_places(df_escuelas, df_alcohol, n_neighbors=1):
     coords_df1 = df_escuelas[['latitud', 'longitud']].to_numpy()
     coords_df2 = df_alcohol[['latitud', 'longitud']].to_numpy()
 
-    # Si no hago esto it no workee
+    # Validation checks
     assert coords_df1.ndim == 2 and coords_df1.shape[1] == 2, "coords_df1 must be a 2D array with shape (n_samples, 2)"
     assert coords_df2.ndim == 2 and coords_df2.shape[1] == 2, "coords_df2 must be a 2D array with shape (n_samples, 2)"
 
-    # Usando NearestNeighbors de sklearn y la distancia semiverseno
-    nbrs = NearestNeighbors(metric=semiverseno).fit(coords_df2)
+    # Using NearestNeighbors from sklearn with haversine distance
+    nbrs = NearestNeighbors(n_neighbors=n_neighbors, metric=semiverseno).fit(coords_df2)
     distances, indices = nbrs.kneighbors(coords_df1)
 
     return distances, indices
 
+
+def find_nearest_within_radius(df_escuelas, df_alcohol, radius):
+    coords_df1 = df_escuelas[['latitud', 'longitud']].to_numpy()
+    coords_df2 = df_alcohol[['latitud', 'longitud']].to_numpy()
+
+    # Validation checks
+    assert coords_df1.ndim == 2 and coords_df1.shape[1] == 2, "coords_df1 must be a 2D array with shape (n_samples, 2)"
+    assert coords_df2.ndim == 2 and coords_df2.shape[1] == 2, "coords_df2 must be a 2D array with shape (n_samples, 2)"
+
+    # Using NearestNeighbors from sklearn with semiverseno distance
+    nbrs = NearestNeighbors(radius=radius, metric=semiverseno).fit(coords_df2)
+    distances, indices = nbrs.radius_neighbors(coords_df1)
+
+    return distances, indices
